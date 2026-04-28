@@ -1,44 +1,39 @@
 {
-  "name": "task-api",
+  "name": "project-collaboration-api",
   "version": "1.0.0",
-  "description": "A simple Node.js + Express + Prisma API for managing tasks",
+  "description": "REST API for collaborative projects, tasks, and comments.",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
   "main": "src/server.js",
   "scripts": {
     "dev": "node --env-file=.env --watch src/server.js",
     "start": "node src/server.js",
-    "migrate:dev": "npx prisma migrate dev",
-    "migrate:deploy": "npx prisma migrate deploy",
-    "seed:dev": "node --env-file=.env prisma/seed.js",
-    "seed:prod": "node prisma/seed.js"
+    "lint": "eslint .",
+    "prisma:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "seed": "prisma db seed",
+    "render-build": "prisma db push && prisma db seed",
+    "postinstall": "prisma generate"
   },
-  "keywords": [
-    "node",
-    "express",
-    "prisma",
-    "postgres",
-    "api",
-    "tasks"
-  ],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.4.2",
-    "@prisma/client": "^7.4.2",
-    "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
+    "@prisma/client": "^6.18.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "express-validator": "^7.2.1",
-    "js-yaml": "^4.1.1",
-    "morgan": "^1.10.1",
-    "prisma": "^7.3.0",
+    "jsonwebtoken": "^9.0.2",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "eslint": "^9.36.0",
-    "eslint-config-prettier": "^10.1.8",
-    "globals": "^16.4.0",
-    "prettier": "^3.6.2"
+    "@eslint/js": "^9.29.0",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "prisma": "^6.18.0",
+    "globals": "^16.2.0",
+    "prettier": "^3.6.1"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   }
 }

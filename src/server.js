@@ -1,44 +1,57 @@
-import express from 'express';
-import morgan from 'morgan';
+import 'dotenv/config';
 import cors from 'cors';
+import express from 'express';
 import swaggerUi from 'swagger-ui-express';
-import yaml from 'js-yaml';
-import fs from 'fs';
-import taskRoutes from './routes/taskRoutes.js';
+import { commentsRouter } from './routes/comments.js';
+import { authRouter } from './routes/auth.js';
+import { projectsRouter } from './routes/projects.js';
+import { tasksRouter } from './routes/tasks.js';
+import { usersRouter } from './routes/users.js';
+import { authenticate } from './middleware/auth.js';
+import { errorHandler, notFoundHandler } from './lib/errors.js';
+import { openApiSpec } from './openapi.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
-app.use(morgan('tiny'));
 
-let specs;
-try {
-  specs = yaml.load(fs.readFileSync('./docs/openapi.yaml', 'utf8'));
-} catch (error) {
-  console.log('Failed to load OpenAPI specification', error);
-  process.exit(1);
-}
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
-app.use('/tasks', taskRoutes);
-
-app.use((req, res, next) => {
-  res.status(404).json({ error: 'Not found' });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  const status = err.status || 500;
-  res.status(status).json({
-    error: err.message || 'Internal Server Error',
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Project Collaboration API',
+    status: 'ok',
+    docs: '/api-docs',
+    openapi: '/openapi.json',
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
+
+app.get('/openapi.json', (req, res) => {
+  res.json(openApiSpec);
+});
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec));
+app.use('/api/auth', authRouter);
+app.use('/api/users', authenticate, usersRouter);
+app.use('/api/projects', authenticate, projectsRouter);
+app.use('/api/tasks', authenticate, tasksRouter);
+app.use('/api/comments', authenticate, commentsRouter);
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+if (process.env.NODE_ENV !== 'test') {
+  const server = app.listen(port, () => {
+    console.log(`Project Collaboration API listening on port ${port}`);
+  });
+
+  server.on('error', (error) => {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
+  });
+}
+
+export { app };
