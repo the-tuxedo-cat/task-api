@@ -13,7 +13,7 @@
     "prisma:generate": "prisma generate",
     "db:push": "prisma db push",
     "seed": "prisma db seed",
-    "render-build": "prisma db push && prisma db seed",
+    "render-build": "prisma db push --accept-data-loss && prisma db seed",
     "postinstall": "prisma generate"
   },
   "dependencies": {
